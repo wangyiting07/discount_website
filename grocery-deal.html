@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grocery Deal – Veckans Erbjudanden</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f0ede8;
+      --surface: #faf8f4;
+      --dark: #141210;
+      --mid: #4a4540;
+      --light: #9c958e;
+      --border: #ddd8d0;
+      --accent: #ff4d1c;
+      --accent2: #1a7a4a;
+      --white: #ffffff;
+      --shadow-sm: 0 2px 12px rgba(0,0,0,0.08);
+      --shadow-md: 0 8px 32px rgba(0,0,0,0.14);
+      --shadow-lg: 0 20px 60px rgba(0,0,0,0.22);
+      --r: 10px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Instrument Sans', sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--dark);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem;
+      height: 60px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 0.6rem;
+      text-decoration: none;
+    }
+    .nav-logo {
+      width: 32px; height: 32px;
+      background: var(--accent);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nav-logo svg { width: 18px; height: 18px; fill: white; }
+    .brand-text {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: white;
+      letter-spacing: -0.02em;
+    }
+    .brand-text span { color: var(--accent); }
+    .nav-tagline {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      padding: 4rem 2rem 2.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 2rem;
+    }
+    .hero-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--dark);
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+    .hero-sub {
+      margin-top: 0.75rem;
+      font-size: 1rem;
+      color: var(--mid);
+      line-height: 1.55;
+    }
+    .week-badge {
+      background: var(--dark);
+      color: white;
+      border-radius: 8px;
+      padding: 1rem 1.4rem;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .week-badge .wk-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--accent);
+    }
+    .week-badge .wk-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-top: 0.2rem;
+    }
+
+    /* ─── STORE TABS ─── */
+    .store-tabs-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    .store-tabs {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--border);
+    }
+    .store-tabs::-webkit-scrollbar { display: none; }
+
+    .store-tab {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.2rem;
+      border-radius: 8px 8px 0 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: var(--light);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+      position: relative;
+      bottom: -2px;
+      border-bottom: 2px solid transparent;
+    }
+    .store-tab:hover { color: var(--dark); background: rgba(0,0,0,0.04); }
+    .store-tab.active {
+      color: var(--dark);
+      border-bottom-color: var(--dark);
+    }
+    .store-tab .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Store brand colors */
+    .tab-matdax .dot { background: #d42b2b; }
+    .tab-willys .dot  { background: #e60219; }
+    .tab-lidl .dot    { background: #0057e6; }
+    .tab-icamaxi .dot { background: #e2011a; }
+
+    /* ─── VIEWER AREA ─── */
+    .viewer-area {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 2rem 4rem;
+    }
+
+    .store-panel { display: none; }
+    .store-panel.active { display: block; }
+
+    /* Store header */
+    .store-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .store-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .store-logo-box {
+      width: 52px; height: 52px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 0.65rem;
+      letter-spacing: 0.05em;
+      color: white;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .store-logo-box img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      padding: 6px;
+      filter: brightness(0) invert(1);
+    }
+    .store-name-group h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      letter-spacing: -0.02em;
+    }
+    .store-name-group p {
+      font-size: 0.8rem;
+      color: var(--light);
+      margin-top: 0.1rem;
+    }
+    .store-link {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--mid);
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 0.45rem 0.9rem;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .store-link:hover { color: var(--dark); border-color: var(--dark); }
+
+    /* Page counter */
+    .page-counter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      color: var(--light);
+    }
+    .page-counter strong {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--dark);
+    }
+
+    /* Main stage */
+    .stage {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: clamp(520px, 78vh, 980px);
+      border-radius: var(--r);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      background: #1a1008;
+      cursor: pointer;
+      user-select: none;
+    }
+    .stage-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      transition: opacity 0.2s;
+    }
+    .stage iframe {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border: 0;
+      background: white;
+    }
+    .stage-img.loading { opacity: 0; }
+
+    .spinner-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(20,18,16,0.9);
+    }
+    .spinner-ring {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(255,255,255,0.12);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Nav zones */
+    .nav-zone {
+      position: absolute; top: 0; bottom: 0;
+      width: 38%;
+      display: flex; align-items: center;
+      padding: 0 1rem;
+      z-index: 10;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .nav-zone.prev { left: 0; justify-content: flex-start; }
+    .nav-zone.next { right: 0; justify-content: flex-end; }
+    .nav-zone:hover { background: rgba(0,0,0,0.07); }
+    .nav-arrow {
+      width: 44px; height: 44px;
+      background: rgba(20,18,16,0.75);
+      backdrop-filter: blur(4px);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.18s, transform 0.18s;
+      flex-shrink: 0;
+    }
+    .nav-zone:hover .nav-arrow { opacity: 1; transform: scale(1); }
+    .nav-arrow svg { width: 20px; height: 20px; stroke: white; }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      margin-top: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .ctrl-btn {
+      padding: 0.55rem 1.2rem;
+      border-radius: 6px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--dark);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 0.35rem;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .ctrl-btn:hover { border-color: var(--dark); background: white; }
+    .ctrl-btn:disabled { opacity: 0.35; cursor: default; border-color: var(--border); }
+    .ctrl-btn.primary {
+      background: var(--dark);
+      color: white;
+      border-color: var(--dark);
+    }
+    .ctrl-btn.primary:hover { background: #2d2924; }
+
+    /* Jump to page */
+    .page-jump {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .page-jump input {
+      width: 52px;
+      padding: 0.45rem 0.5rem;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-align: center;
+      color: var(--dark);
+      background: var(--surface);
+      transition: border-color 0.15s;
+    }
+    .page-jump input:focus { outline: none; border-color: var(--dark); }
+
+    .keyboard-hint {
+      text-align: center;
+      color: var(--light);
+      font-size: 0.74rem;
+      margin-top: 0.75rem;
+    }
+    .keyboard-hint kbd {
+      background: var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-size: 0.74rem;
+      font-family: inherit;
+    }
+
+    /* ─── THUMBNAILS ─── */
+    .thumbs-section { margin-top: 2rem; }
+    .thumbs-header {
+      display: flex; align-items: center; gap: 0.6rem;
+      margin-bottom: 0.9rem;
+    }
+    .thumbs-header span {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--light);
+    }
+    .thumbs-header::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .thumbs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      gap: 5px;
+    }
+    .thumb {
+      aspect-ratio: 3/4;
+      border-radius: 5px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.12s, border-color 0.12s, box-shadow 0.12s;
+      position: relative;
+    }
+    .thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .thumb:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+    .thumb.active { border-color: var(--dark); box-shadow: 0 0 0 1px var(--dark); }
+    .thumb-num {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.55);
+      color: white;
+      font-size: 0.6rem; font-weight: 600;
+      text-align: center; padding: 2px 0;
+    }
+
+    /* ─── DIVIDER / FOOTER ─── */
+    .site-footer {
+      background: var(--dark);
+      color: rgba(255,255,255,0.45);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.78rem;
+      line-height: 1.7;
+    }
+    .site-footer a { color: rgba(255,255,255,0.7); text-decoration: none; }
+    .site-footer strong { color: white; font-family: 'Syne', sans-serif; }
+
+    @media (max-width: 600px) {
+      .hero { grid-template-columns: 1fr; }
+      .week-badge { display: none; }
+      .thumbs-grid { grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); }
+      nav { padding: 0 1rem; }
+      .viewer-area, .store-tabs-wrap { padding-left: 1rem; padding-right: 1rem; }
+      .stage {
+        height: min(68vh, 620px);
+      }
+      .nav-zone {
+        width: 22%;
+        padding: 0 0.45rem;
+      }
+      .nav-arrow {
+        width: 38px;
+        height: 38px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    <div class="nav-logo">
+      <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+    </div>
+    <div>
+      <div class="brand-text">Grocery<span>Deal</span></div>
+    </div>
+  </a>
+  <span class="nav-tagline">Veckans erbjudanden · Sverige</span>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="hero-eyebrow">🛒 Alla butiker · En plats</div>
+    <h1>Veckans bästa<br/><em>erbjudanden</em></h1>
+    <p class="hero-sub">Bläddra igenom veckans reklamblad från Sveriges populäraste matbutiker. Hitta de bästa priserna utan att lämna soffan.</p>
+  </div>
+  <div class="week-badge">
+    <div class="wk-num" id="weekNum">13</div>
+    <div class="wk-label">Vecka 2026</div>
+  </div>
+</div>
+
+<!-- STORE TABS -->
+<div class="store-tabs-wrap">
+  <div class="store-tabs">
+    <button class="store-tab tab-matdax active" onclick="switchStore('matdax')">
+      <span class="dot"></span> Matdax
+    </button>
+    <button class="store-tab tab-willys" onclick="switchStore('willys')">
+      <span class="dot"></span> Willys
+    </button>
+    <button class="store-tab tab-lidl" onclick="switchStore('lidl')">
+      <span class="dot"></span> Lidl
+    </button>
+    <button class="store-tab tab-icamaxi" onclick="switchStore('icamaxi')">
+      <span class="dot"></span> ICA Maxi
+    </button>
+  </div>
+</div>
+
+<!-- VIEWER -->
+<div class="viewer-area">
+
+  <!-- ══ MATDAX PANEL ══ -->
+  <div class="store-panel active" id="panel-matdax">
+    <div class="store-header">
+      <div class="store-info">
+        <div class="store-logo-box" style="background:#d42b2b;">
+          <img src="https://www.matdax.se/wp-content/uploads/sites/5/2024/12/logo.png" alt="Matdax" />
+        </div>
+        <div class="store-name-group">
+          <h2>Matdax</h2>
+          <p>Hagsätra · Högdalen · Hökarängen &nbsp;·&nbsp; Öppet 07–22</p>
+        </div>
+      </div>
+      <a class="store-link" href="https://www.matdax.se/erbjudanden/" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        matdax.se
+      </a>
+    </div>
+
+    <div class="page-counter">
+      Sida <strong id="matdax-cur">1</strong> av <strong id="matdax-tot">22</strong>
+    </div>
+
+    <div class="stage" id="stage-matdax">
+      <div class="spinner-overlay" id="spin-matdax"><div class="spinner-ring"></div></div>
+      <img class="stage-img" id="img-matdax" src="" alt="" />
+      <div class="nav-zone prev" onclick="changePageFor('matdax', -1)">
+        <div class="nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+      </div>
+      <div class="nav-zone next" onclick="changePageFor('matdax', 1)">
+        <div class="nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="ctrl-btn" id="matdax-prev" onclick="changePageFor('matdax', -1)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg> Föregående
+      </button>
+      <div class="page-jump">
+        Gå till sida <input type="number" id="jump-matdax" min="1" value="1" onchange="jumpTo('matdax', this.value)" />
+      </div>
+      <button class="ctrl-btn" id="matdax-next" onclick="changePageFor('matdax', 1)">
+        Nästa <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <p class="keyboard-hint">Klicka på halvorna eller använd <kbd>←</kbd> <kbd>→</kbd> · Svep på mobil</p>
+
+    <div class="thumbs-section">
+      <div class="thumbs-header"><span>Alla sidor</span></div>
+      <div class="thumbs-grid" id="thumbs-matdax"></div>
+    </div>
+  </div>
+
+  <!-- ══ WILLYS PANEL ══ -->
+  <div class="store-panel" id="panel-willys">
+    <div class="store-header">
+      <div class="store-info">
+        <div class="store-logo-box" style="background:#e60219;">
+          <img src="https://www.willys.se/staticresources/favicon.svg" alt="Willys Huddinge Flemingsberg" />
+        </div>
+        <div class="store-name-group">
+          <h2>Willys Huddinge Flemingsberg</h2>
+          <p>Sveriges ledande lågpriskedja &nbsp;·&nbsp; 200+ butiker</p>
+        </div>
+      </div>
+      <a class="store-link" href="https://www.willys.se/store-page?storeId=2332" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        willys.se/flemingsberg
+      </a>
+    </div>
+    <div class="page-counter">
+      Sida <strong id="willys-cur">1</strong> av <strong id="willys-tot">1</strong>
+    </div>
+    <div class="stage" id="stage-willys">
+      <div class="spinner-overlay" id="spin-willys"><div class="spinner-ring"></div></div>
+      <img class="stage-img" id="img-willys" src="" alt="" />
+      <iframe
+        id="frame-willys"
+        title="Willys reklamblad"
+        loading="lazy"
+        style="display:none;width:100%;height:100%;border:0;background:#fff;"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+      <div class="nav-zone prev" onclick="changePageFor('willys', -1)">
+        <div class="nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+      </div>
+      <div class="nav-zone next" onclick="changePageFor('willys', 1)">
+        <div class="nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="ctrl-btn" id="willys-prev" onclick="changePageFor('willys', -1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg> Föregående</button>
+      <div class="page-jump">Gå till sida <input type="number" id="jump-willys" min="1" value="1" onchange="jumpTo('willys', this.value)" /></div>
+      <button class="ctrl-btn" id="willys-next" onclick="changePageFor('willys', 1)">Nästa <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+    <p class="keyboard-hint">Klicka på halvorna eller använd <kbd>←</kbd> <kbd>→</kbd> · Svep på mobil</p>
+    <div class="thumbs-section">
+      <div class="thumbs-header"><span>Alla sidor</span></div>
+      <div class="thumbs-grid" id="thumbs-willys"></div>
+    </div>
+  </div>
+
+  <!-- ══ LIDL PANEL ══ -->
+  <div class="store-panel" id="panel-lidl">
+    <div class="store-header">
+      <div class="store-info">
+        <div class="store-logo-box" style="background:#0057e6;">
+          <img src="https://www.lidl.se/cdn/assets/logos/1.0.0/logo.svg" alt="Lidl" />
+        </div>
+        <div class="store-name-group">
+          <h2>Lidl</h2>
+          <p>Prisvärd mat · 195 butiker i Sverige</p>
+        </div>
+      </div>
+      <a class="store-link" href="https://www.lidl.se/erbjudanden" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        lidl.se
+      </a>
+    </div>
+    <div class="page-counter">
+      Sida <strong id="lidl-cur">1</strong> av <strong id="lidl-tot">58</strong>
+    </div>
+    <div class="stage" id="stage-lidl">
+      <div class="spinner-overlay" id="spin-lidl"><div class="spinner-ring"></div></div>
+      <img class="stage-img" id="img-lidl" src="" alt="" />
+      <div class="nav-zone prev" onclick="changePageFor('lidl', -1)">
+        <div class="nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+      </div>
+      <div class="nav-zone next" onclick="changePageFor('lidl', 1)">
+        <div class="nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="ctrl-btn" id="lidl-prev" onclick="changePageFor('lidl', -1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg> Föregående</button>
+      <div class="page-jump">Gå till sida <input type="number" id="jump-lidl" min="1" value="1" onchange="jumpTo('lidl', this.value)" /></div>
+      <button class="ctrl-btn" id="lidl-next" onclick="changePageFor('lidl', 1)">Nästa <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+    <p class="keyboard-hint">Klicka på halvorna eller använd <kbd>←</kbd> <kbd>→</kbd> · Svep på mobil</p>
+    <div class="thumbs-section">
+      <div class="thumbs-header"><span>Alla sidor</span></div>
+      <div class="thumbs-grid" id="thumbs-lidl"></div>
+    </div>
+  </div>
+
+  <!-- ══ ICA MAXI PANEL ══ -->
+  <div class="store-panel" id="panel-icamaxi">
+    <div class="store-header">
+      <div class="store-info">
+        <div class="store-logo-box" style="background:#e2011a;">
+          <img src="https://assets.icanet.se/t_store_logo_email/store-logo_svg_15973.png?v=1774091888" alt="Maxi ICA Stormarknad Flemingsberg" />
+        </div>
+        <div class="store-name-group">
+          <h2>Maxi ICA Stormarknad Flemingsberg</h2>
+          <p>Stormarknad med djupt sortiment · Rikstäckande</p>
+        </div>
+      </div>
+      <a class="store-link" href="https://www.ica.se/erbjudanden/maxi-ica-stormarknad-flemingsberg-1003430/" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        ica.se/flemingsberg
+      </a>
+    </div>
+    <div class="page-counter">
+      Sida <strong id="icamaxi-cur">1</strong> av <strong id="icamaxi-tot">19</strong>
+    </div>
+    <div class="stage" id="stage-icamaxi">
+      <div class="spinner-overlay" id="spin-icamaxi"><div class="spinner-ring"></div></div>
+      <img class="stage-img" id="img-icamaxi" src="" alt="" />
+      <div class="nav-zone prev" onclick="changePageFor('icamaxi', -1)">
+        <div class="nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+      </div>
+      <div class="nav-zone next" onclick="changePageFor('icamaxi', 1)">
+        <div class="nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="ctrl-btn" id="icamaxi-prev" onclick="changePageFor('icamaxi', -1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg> Föregående</button>
+      <div class="page-jump">Gå till sida <input type="number" id="jump-icamaxi" min="1" value="1" onchange="jumpTo('icamaxi', this.value)" /></div>
+      <button class="ctrl-btn" id="icamaxi-next" onclick="changePageFor('icamaxi', 1)">Nästa <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+    <p class="keyboard-hint">Klicka på halvorna eller använd <kbd>←</kbd> <kbd>→</kbd> · Svep på mobil</p>
+    <div class="thumbs-section">
+      <div class="thumbs-header"><span>Alla sidor</span></div>
+      <div class="thumbs-grid" id="thumbs-icamaxi"></div>
+    </div>
+  </div>
+
+</div><!-- /viewer-area -->
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <strong>GroceryDeal</strong> — Veckans erbjudanden från Matdax, Willys, Lidl &amp; ICA Maxi<br/>
+  Bildmaterial tillhör respektive butik. &nbsp;·&nbsp;
+  <a href="https://www.matdax.se/" target="_blank">Matdax</a> &nbsp;·&nbsp;
+  <a href="https://www.willys.se/" target="_blank">Willys</a> &nbsp;·&nbsp;
+  <a href="https://www.lidl.se/" target="_blank">Lidl</a> &nbsp;·&nbsp;
+  <a href="https://www.ica.se/butiker/maxi/" target="_blank">ICA Maxi</a>
+</footer>
+
+<script>
+// ─── Store configs ───────────────────────────────────────────────
+const STORES = {
+  matdax: {
+    mode: 'images',
+    pages: 22,
+    imgUrl:  n => `https://unifiler.b-cdn.net/images/1270c85/${n}.jpg?width=800`,
+    thumbUrl:n => `https://unifiler.b-cdn.net/images/1270c85/${n}.jpg?width=160`,
+  },
+  willys: {
+    mode: 'flyers',
+    pages: 1,
+    embedUrl: 'https://viewer.ipaper.io/willys/2332/',
+    embedPreview: 'https://b-cdn.ipaper.io/OpenGraphImage.ashx?v=eyJQYXBlckd1aWQiOiIwY2M2MThkOS1lNmRhLTQ3MzktODg4MC0yNDQ0ZGJmMmQyOTMiLCJQYWdlTnVtYmVyIjoxLCJQYWdlQ291bnQiOjEyLCJTdGFydE9uU3ByZWFkIjpmYWxzZSwiVXJsIjoiL3dpbGx5cy9wZGZzL2VkaS0xMDAwMS0wMDEyd2lsLXYxNHBkZi8iLCJQYXJ0bmVyTmFtZSI6ImlQYXBlciJ9',
+    flyers: [
+      {
+        title: 'Se veckans reklamblad',
+        subtitle: 'Willys visar nu livebladet via butiksväljaren på sin egen erbjudandesida.',
+        href: 'https://viewer.ipaper.io/willys/2332',
+        image: 'https://www.willys.se/staticresources/favicon.svg',
+      },
+    ],
+  },
+  lidl: {
+    mode: 'images',
+    pages: 58,
+    sets: [
+      {
+        base: 'https://object.storage.eu01.onstackit.cloud/leaflets/images/019d2ffa-720e-75fd-aed0-f8dd8923f64b/',
+        files: [
+          "page-01_2293a52e6ceec87e5cf84d318f5a878c.png",
+          "page-02_c6c91e08795f56359984c6ced8ae8a7c.png",
+          "page-03_61e2529f8fb7a85d31fb955dc49130d3.png",
+          "page-04_7d1490b9e8b9046e020b125722a284e4.png",
+          "page-05_9fc07b5fbe3ef85abde967c7f827a22a.png",
+          "page-06_e3b994133ea635866759748d6d6e4ebb.png",
+          "page-07_96cb189d5c7cc484b7dbe43cd1c76cc9.png",
+          "page-08_f0b745b6562e0e088a458d63d6fa1f93.png",
+          "page-09_dbc19f8b404f5e71885f0f6572d4675c.png",
+          "page-10_0437feca79a1b0c72edd6a5348311607.png",
+          "page-11_9436f848f323aaecf03cab87036b3e66.png",
+          "page-12_56cc4dee02fa319dceba5d67671b0af5.png",
+          "page-13_7e9c4ee496da8d7f7e859a2ec4fdff13.png",
+          "page-14_4087431a4e7ebbaa745d413410586656.png",
+          "page-15_fd0b06904b2c5e65344a505d8ddf769f.png",
+          "page-16_ac173f75a64831d330939299130dbb80.png",
+          "page-17_66e974ffe274a6fbd53fb84eb3a946ca.png",
+          "page-18_850746d3140744385ef2a7786b7a9bd2.png",
+          "page-19_56831c0bcdb0c9774d516f6b31c6eff0.png",
+          "page-20_257448e4da505ace0d7167feddb6215b.png",
+          "page-21_6b786604ccab4e1f88040bbc552804e1.png",
+          "page-22_f1a9082f3743e73d98d8174c97dd3e83.png",
+          "page-23_f3a07bba457fe7c266542718c88b7136.png",
+          "page-24_54821312fbbf19a4742e2b16425f40d6.png",
+          "page-25_f247726d896c5fad4e2eda27e987c381.png",
+          "page-26_564be6c7f8e7eeec7b78d13d1ff3a560.png",
+          "page-27_8dc8a8d705587177adfa354c6d429cb6.png",
+          "page-28_6a79b79c7251942b601f7b62eeb20315.png",
+          "page-29_1a00b3ccd8757cf595c0441cf67d17ef.png",
+        ],
+      },
+      {
+        base: 'https://object.storage.eu01.onstackit.cloud/leaflets/images/019d0536-a937-72f7-8485-a222836e4f39/',
+        files: [
+          "page-01_c9e3c436cbc83339d3b344a5c92c7d98.png",
+          "page-02_565a6e0b395a9b06b1eb5e1c1de7e2e6.png",
+          "page-03_8e0388fd05ab4437dd402bfa52a550d6.png",
+          "page-04_856708206e4db095ac936c669d4a43f1.png",
+          "page-05_5cd9d5e4e47310c5fef4472477a85513.png",
+          "page-06_7b32d18928ec57dcdf0fb26c6b10b76d.png",
+          "page-07_76725acca38a7fdc06656b6c65954259.png",
+          "page-08_0f8ed4838095490e80ab171db1783794.png",
+          "page-09_4f499d92ab334eecb4a0858411299006.png",
+          "page-10_24e8daff292ca277f4cdc97908dec957.png",
+          "page-11_2cc884e258907a7ab2eee417211d3343.png",
+          "page-12_f80866ea86895ec89b3c4fd4e9aa004a.png",
+          "page-13_8c56941ad2ca94e4530b8a9eeb132905.png",
+          "page-14_7fabf2ce3cbebcfb0ba288bcb0630e04.png",
+          "page-15_5dd48f56eabfbdc6ac26503edae9b072.png",
+          "page-16_6fb6b1089d4c0286d430ccb92424790e.png",
+          "page-17_803ada13d646b9f35aefce5a9e03c4c2.png",
+          "page-18_3727c54af8641db7f5c4c2082eece1c0.png",
+          "page-19_1b1279f8d32bd7e3d1d99c56ddf1db5a.png",
+          "page-20_79e4ae00c5cc07bfcf5b39b35747c611.png",
+          "page-21_5dc218dd370700e839245f877feaac82.png",
+          "page-22_e7547d8e0951028d96be689cf50d5105.png",
+          "page-23_373a969747d9ed3ac6dc36e3c230922a.png",
+          "page-24_44ab052a1a5ce3bac7f6575c17e243d4.png",
+          "page-25_69b6cc4555646733fda27bb21400a944.png",
+          "page-26_c9993b8f8267ecfda4979d5cfe1a26fa.png",
+          "page-27_0699cec5c572bd68524eac44e40f38ab.png",
+          "page-28_939c150bdb789aff8e849f6aa8abb3a2.png",
+          "page-29_393e8c84ef0c8997a35b1e070ee32f72.png",
+        ],
+      },
+    ],
+  },
+  icamaxi: {
+    mode: 'images',
+    pages: 19,
+    images: [
+      "https://www.e-magin.se/static/q6njppdn/page_1_high_VTSq.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_2_high_jVkv.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_3_high_LTXj.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_4_high_cLmD.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_5_high_ZskK.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_6_high_mLqm.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_7_high_NHnm.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_8_high_Kplt.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_9_high_bhBN.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_10_high_drhZ.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_11_high_vMqK.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_12_high_MFGd.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_13_high_BLNV.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_14_high_fJCJ.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_15_high_DcFq.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_16_high_cxtB.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_17_high_Ftjm.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_18_high_LjNb.jpg",
+      "https://www.e-magin.se/static/q6njppdn/page_19_high_xKdC.jpg",
+    ],
+    imgUrl: n => STORES.icamaxi.images[n - 1],
+    thumbUrl: n => STORES.icamaxi.images[n - 1],
+  },
+};
+
+const lidlPages = STORES.lidl.sets.flatMap(set =>
+  set.files.map(file => `${set.base}${file}`)
+);
+STORES.lidl.imgUrl = n => lidlPages[n - 1];
+STORES.lidl.thumbUrl = n => lidlPages[n - 1];
+
+// ─── State ───────────────────────────────────────────────────────
+const state = { matdax: 1, willys: 1, lidl: 1, icamaxi: 1 };
+let activeStore = 'matdax';
+
+// ─── Week number ─────────────────────────────────────────────────
+function getWeekNum(d) {
+  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+}
+document.getElementById('weekNum').textContent = getWeekNum(new Date());
+
+// ─── Viewer core ─────────────────────────────────────────────────
+function goTo(store, n) {
+  const cfg = STORES[store];
+  n = Math.max(1, Math.min(cfg.pages, n));
+  state[store] = n;
+
+  const img      = document.getElementById(`img-${store}`);
+  const frame    = document.getElementById(`frame-${store}`);
+  const spinner  = document.getElementById(`spin-${store}`);
+  const curEl    = document.getElementById(`${store}-cur`);
+  const totEl    = document.getElementById(`${store}-tot`);
+  const prevBtn  = document.getElementById(`${store}-prev`);
+  const nextBtn  = document.getElementById(`${store}-next`);
+  const jumpEl   = document.getElementById(`jump-${store}`);
+  const navZones = document.querySelectorAll(`#stage-${store} .nav-zone`);
+
+  if (cfg.embedUrl && frame) {
+    img.style.display = 'none';
+    frame.style.display = 'block';
+    navZones.forEach(zone => { zone.style.display = 'none'; });
+    if (frame.src !== cfg.embedUrl) frame.src = cfg.embedUrl;
+    spinner.style.display = 'none';
+    img.classList.remove('loading');
+    if (curEl) curEl.textContent = n;
+    if (totEl) totEl.textContent = cfg.pages;
+    if (prevBtn) prevBtn.disabled = true;
+    if (nextBtn) nextBtn.disabled = true;
+    if (jumpEl)  jumpEl.value = n;
+    if (jumpEl)  jumpEl.max = cfg.pages;
+    document.querySelectorAll(`#thumbs-${store} .thumb`).forEach(t => {
+      t.classList.toggle('active', +t.dataset.page === n);
+    });
+    return;
+  }
+
+  const flyer = cfg.flyers ? cfg.flyers[n - 1] : null;
+  navZones.forEach(zone => { zone.style.display = ''; });
+
+  // show spinner
+  spinner.style.display = 'flex';
+  img.classList.add('loading');
+
+  const src = flyer ? flyer.image : cfg.imgUrl(n);
+  const loader = new Image();
+  loader.onload = () => {
+    img.src = src;
+    img.alt = flyer ? flyer.title : `Sida ${n}`;
+    img.style.cursor = flyer ? 'pointer' : 'default';
+    img.onclick = flyer ? () => window.open(flyer.href, '_blank', 'noopener') : null;
+    img.classList.remove('loading');
+    spinner.style.display = 'none';
+  };
+  loader.onerror = () => {
+    spinner.style.display = 'none';
+    img.classList.remove('loading');
+  };
+  loader.src = src;
+
+  if (curEl) curEl.textContent = n;
+  if (totEl) totEl.textContent = cfg.pages;
+  if (prevBtn) prevBtn.disabled = n === 1;
+  if (nextBtn) nextBtn.disabled = n === cfg.pages;
+  if (jumpEl)  jumpEl.value = n;
+  if (jumpEl)  jumpEl.max = cfg.pages;
+
+  // update thumbnail active state
+  document.querySelectorAll(`#thumbs-${store} .thumb`).forEach(t => {
+    t.classList.toggle('active', +t.dataset.page === n);
+  });
+}
+
+function changePageFor(store, delta) {
+  goTo(store, state[store] + delta);
+}
+
+function jumpTo(store, val) {
+  const n = parseInt(val, 10);
+  if (!isNaN(n)) goTo(store, n);
+}
+
+// ─── Build thumbnails ─────────────────────────────────────────────
+function buildThumbs(store) {
+  const cfg = STORES[store];
+  const grid = document.getElementById(`thumbs-${store}`);
+  grid.innerHTML = '';
+
+  if (cfg.embedUrl) {
+    const div = document.createElement('div');
+    div.className = 'thumb active';
+    div.dataset.page = 1;
+    div.onclick = () => goTo(store, 1);
+
+    const img = document.createElement('img');
+    img.src = cfg.embedPreview;
+    img.alt = 'Willys reklamblad';
+    img.loading = 'lazy';
+
+    const num = document.createElement('div');
+    num.className = 'thumb-num';
+    num.textContent = 1;
+
+    div.appendChild(img);
+    div.appendChild(num);
+    grid.appendChild(div);
+    return;
+  }
+
+  if (cfg.flyers) {
+    cfg.flyers.forEach((flyer, i) => {
+      const div = document.createElement('div');
+      div.className = 'thumb' + (i === 0 ? ' active' : '');
+      div.dataset.page = i + 1;
+      div.title = flyer.title;
+      div.onclick = () => goTo(store, i + 1);
+
+      const img = document.createElement('img');
+      img.src = flyer.image;
+      img.alt = flyer.title;
+      img.loading = 'lazy';
+
+      const num = document.createElement('div');
+      num.className = 'thumb-num';
+      num.textContent = i + 1;
+
+      div.appendChild(img);
+      div.appendChild(num);
+      grid.appendChild(div);
+    });
+    return;
+  }
+
+  for (let i = 1; i <= cfg.pages; i++) {
+    const div = document.createElement('div');
+    div.className = 'thumb' + (i === 1 ? ' active' : '');
+    div.dataset.page = i;
+    div.onclick = () => goTo(store, i);
+    const img = document.createElement('img');
+    img.src = cfg.thumbUrl(i);
+    img.alt = `Sida ${i}`;
+    img.loading = 'lazy';
+    const num = document.createElement('div');
+    num.className = 'thumb-num';
+    num.textContent = i;
+    div.appendChild(img);
+    div.appendChild(num);
+    grid.appendChild(div);
+  }
+}
+
+// ─── Store switching ──────────────────────────────────────────────
+function switchStore(store) {
+  activeStore = store;
+  document.querySelectorAll('.store-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.store-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`panel-${store}`).classList.add('active');
+  document.querySelector(`.tab-${store}`).classList.add('active');
+  // init if first visit
+  if (state[store] === 1 && !document.querySelector(`#thumbs-${store} .thumb`)) {
+    buildThumbs(store);
+    goTo(store, 1);
+  }
+}
+
+// ─── Keyboard nav ────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+  if (e.key === 'ArrowLeft')  changePageFor(activeStore, -1);
+  if (e.key === 'ArrowRight') changePageFor(activeStore,  1);
+});
+
+// ─── Touch / swipe ───────────────────────────────────────────────
+let touchX0 = 0;
+document.querySelectorAll('.stage').forEach(stage => {
+  stage.addEventListener('touchstart', e => { touchX0 = e.touches[0].clientX; }, { passive: true });
+  stage.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchX0;
+    if (Math.abs(dx) > 40) changePageFor(activeStore, dx < 0 ? 1 : -1);
+  });
+});
+
+// ─── Init ────────────────────────────────────────────────────────
+buildThumbs('matdax');
+goTo('matdax', 1);
+</script>
+</body>
+</html>
