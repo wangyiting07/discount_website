@@ -179,6 +179,7 @@
     .tab-willys .dot  { background: #e60219; }
     .tab-lidl .dot    { background: #0057e6; }
     .tab-icamaxi .dot { background: #e2011a; }
+    .tab-matvarlden .dot { background: #2d7a2f; }
 
     /* ─── VIEWER AREA ─── */
     .viewer-area {
@@ -528,6 +529,9 @@
     <button class="store-tab tab-icamaxi" onclick="switchStore('icamaxi')">
       <span class="dot"></span> ICA Maxi
     </button>
+    <button class="store-tab tab-matvarlden" onclick="switchStore('matvarlden')">
+      <span class="dot"></span> Matvarlden
+    </button>
   </div>
 </div>
 
@@ -719,6 +723,55 @@
     </div>
   </div>
 
+  <!-- ══ MATVARLDEN PANEL ══ -->
+  <div class="store-panel" id="panel-matvarlden">
+    <div class="store-header">
+      <div class="store-info">
+        <div class="store-logo-box" style="background:#2d7a2f;">
+          <img src="https://www.matvarlden.se/uploads/logo.png" alt="Matvarlden Kungens Kurva" />
+        </div>
+        <div class="store-name-group">
+          <h2>Matvarlden Kungens Kurva</h2>
+          <p>Modulvagen 6 · Kungens Kurva · Oppet 07-22</p>
+        </div>
+      </div>
+      <a class="store-link" href="https://www.matvarlden.se/?pg=1445667" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        matvarlden.se/kungens-kurva
+      </a>
+    </div>
+    <div class="page-counter">
+      Sida <strong id="matvarlden-cur">1</strong> av <strong id="matvarlden-tot">7</strong>
+    </div>
+    <div class="stage" id="stage-matvarlden">
+      <div class="spinner-overlay" id="spin-matvarlden"><div class="spinner-ring"></div></div>
+      <img class="stage-img" id="img-matvarlden" src="" alt="" />
+      <iframe
+        id="frame-matvarlden"
+        title="Matvarlden reklamblad"
+        loading="lazy"
+        style="display:none;width:100%;height:100%;border:0;background:#fff;"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+      <div class="nav-zone prev" onclick="changePageFor('matvarlden', -1)">
+        <div class="nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+      </div>
+      <div class="nav-zone next" onclick="changePageFor('matvarlden', 1)">
+        <div class="nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="ctrl-btn" id="matvarlden-prev" onclick="changePageFor('matvarlden', -1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg> Foregaende</button>
+      <div class="page-jump">Ga till sida <input type="number" id="jump-matvarlden" min="1" value="1" onchange="jumpTo('matvarlden', this.value)" /></div>
+      <button class="ctrl-btn" id="matvarlden-next" onclick="changePageFor('matvarlden', 1)">Nasta <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+    <p class="keyboard-hint">Klicka pa halvorna eller anvand <kbd>&larr;</kbd> <kbd>&rarr;</kbd> · Svep pa mobil</p>
+    <div class="thumbs-section">
+      <div class="thumbs-header"><span>Alla sidor</span></div>
+      <div class="thumbs-grid" id="thumbs-matvarlden"></div>
+    </div>
+  </div>
+
 </div><!-- /viewer-area -->
 
 <!-- FOOTER -->
@@ -728,7 +781,8 @@
   <a href="https://www.matdax.se/" target="_blank">Matdax</a> &nbsp;·&nbsp;
   <a href="https://www.willys.se/" target="_blank">Willys</a> &nbsp;·&nbsp;
   <a href="https://www.lidl.se/" target="_blank">Lidl</a> &nbsp;·&nbsp;
-  <a href="https://www.ica.se/butiker/maxi/" target="_blank">ICA Maxi</a>
+  <a href="https://www.ica.se/butiker/maxi/" target="_blank">ICA Maxi</a> &nbsp;·&nbsp;
+  <a href="https://www.matvarlden.se/?pg=1445645" target="_blank">Matvarlden</a>
 </footer>
 
 <script>
@@ -855,6 +909,12 @@ const STORES = {
     imgUrl: n => STORES.icamaxi.images[n - 1],
     thumbUrl: n => STORES.icamaxi.images[n - 1],
   },
+  matvarlden: {
+    mode: 'images',
+    pages: 7,
+    imgUrl:  n => `https://unifiler.b-cdn.net/images/15091cd/${n}.jpg?width=800`,
+    thumbUrl:n => `https://unifiler.b-cdn.net/images/15091cd/${n}.jpg?width=160`,
+  },
 };
 
 const lidlPages = STORES.lidl.sets.flatMap(set =>
@@ -864,7 +924,7 @@ STORES.lidl.imgUrl = n => lidlPages[n - 1];
 STORES.lidl.thumbUrl = n => lidlPages[n - 1];
 
 // ─── State ───────────────────────────────────────────────────────
-const state = { matdax: 1, willys: 1, lidl: 1, icamaxi: 1 };
+const state = { matdax: 1, willys: 1, lidl: 1, icamaxi: 1, matvarlden: 1 };
 let activeStore = 'matdax';
 
 // ─── Week number ─────────────────────────────────────────────────
