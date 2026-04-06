@@ -289,6 +289,7 @@
       display: block;
       transition: opacity 0.2s;
     }
+    .stage-img.zoomable { cursor: zoom-in; }
     .stage iframe {
       width: 100%;
       height: 100%;
@@ -369,6 +370,7 @@
       border-color: var(--dark);
     }
     .ctrl-btn.primary:hover { background: #2d2924; }
+    .ctrl-btn.zoom-btn { display: none; }
 
     /* Jump to page */
     .page-jump {
@@ -466,6 +468,89 @@
     .site-footer a { color: rgba(255,255,255,0.7); text-decoration: none; }
     .site-footer strong { color: white; font-family: 'Syne', sans-serif; }
 
+    .zoom-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,10,0.92);
+      z-index: 500;
+      display: none;
+      flex-direction: column;
+      padding: 1rem;
+    }
+    .zoom-overlay.active { display: flex; }
+    .zoom-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      color: white;
+    }
+    .zoom-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.8);
+    }
+    .zoom-close {
+      background: rgba(255,255,255,0.12);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+    .zoom-stage {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .zoom-scroll {
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y pinch-zoom;
+      border-radius: 10px;
+    }
+    .zoom-scroll img {
+      display: block;
+      max-width: none;
+      width: min(1200px, 100%);
+      height: auto;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: var(--shadow-lg);
+      background: white;
+    }
+    .zoom-nav {
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.12);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .zoom-nav:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+    .zoom-hint {
+      color: rgba(255,255,255,0.72);
+      text-align: center;
+      font-size: 0.8rem;
+      margin-top: 0.8rem;
+    }
+
     @media (max-width: 600px) {
       .hero { grid-template-columns: 1fr; }
       .week-badge { display: none; }
@@ -482,6 +567,12 @@
       .nav-arrow {
         width: 38px;
         height: 38px;
+      }
+      .ctrl-btn.zoom-btn { display: inline-flex; }
+      .zoom-scroll img { width: min(1600px, 180vw); }
+      .zoom-stage {
+        grid-template-columns: 40px minmax(0, 1fr) 40px;
+        gap: 0.5rem;
       }
     }
   </style>
@@ -927,6 +1018,109 @@ async function ensureLidlLoaded() {
   await cfg.loadingPromise;
 }
 
+const zoomState = { open: false, store: null };
+
+function canZoomStore(store) {
+  const cfg = STORES[store];
+  return !!cfg && !cfg.embedUrl && !cfg.flyers && !!cfg.imgUrl(state[store]);
+}
+
+function ensureZoomUi() {
+  if (!document.getElementById('zoom-overlay')) {
+    const overlay = document.createElement('div');
+    overlay.className = 'zoom-overlay';
+    overlay.id = 'zoom-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.innerHTML = `
+      <div class="zoom-topbar">
+        <div class="zoom-title" id="zoom-title">Forstorad sida</div>
+        <button class="ctrl-btn zoom-close" type="button" onclick="closeZoom()">Stang</button>
+      </div>
+      <div class="zoom-stage">
+        <button class="zoom-nav" id="zoom-prev" type="button" onclick="changeZoomPage(-1)" aria-label="Foregaende sida">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="zoom-scroll" id="zoom-scroll">
+          <img id="zoom-img" src="" alt="" />
+        </div>
+        <button class="zoom-nav" id="zoom-next" type="button" onclick="changeZoomPage(1)" aria-label="Nasta sida">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div class="zoom-hint">Dra for att panorera. Anvand pilarna for att byta sida.</div>
+    `;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) closeZoom();
+    });
+  }
+
+  ['matdax', 'willys', 'lidl', 'icamaxi', 'matvarlden'].forEach(store => {
+    const controls = document.querySelector(`#panel-${store} .controls`);
+    if (!controls || controls.querySelector('.zoom-btn')) return;
+    const btn = document.createElement('button');
+    btn.className = 'ctrl-btn zoom-btn';
+    btn.type = 'button';
+    btn.textContent = 'Forstora';
+    btn.onclick = () => openZoom(store);
+    controls.appendChild(btn);
+    refreshZoomButton(store);
+  });
+}
+
+function refreshZoomButton(store) {
+  const btn = document.querySelector(`#panel-${store} .zoom-btn`);
+  if (btn) btn.disabled = !canZoomStore(store);
+}
+
+function syncZoomView() {
+  if (!zoomState.open || !zoomState.store) return;
+  const store = zoomState.store;
+  const cfg = STORES[store];
+  const page = state[store];
+  const img = document.getElementById('zoom-img');
+  const title = document.getElementById('zoom-title');
+  const scroll = document.getElementById('zoom-scroll');
+  const prev = document.getElementById('zoom-prev');
+  const next = document.getElementById('zoom-next');
+  if (!img || !title || !scroll || !prev || !next) return;
+
+  img.src = cfg.imgUrl(page);
+  img.alt = `Sida ${page}`;
+  title.textContent = `${store.toUpperCase()} · Sida ${page} av ${cfg.pages}`;
+  prev.disabled = page === 1;
+  next.disabled = page === cfg.pages;
+  scroll.scrollTop = 0;
+  scroll.scrollLeft = 0;
+}
+
+function openZoom(store) {
+  if (!canZoomStore(store)) return;
+  ensureZoomUi();
+  zoomState.open = true;
+  zoomState.store = store;
+  const overlay = document.getElementById('zoom-overlay');
+  overlay.classList.add('active');
+  overlay.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  syncZoomView();
+}
+
+function closeZoom() {
+  const overlay = document.getElementById('zoom-overlay');
+  if (!overlay) return;
+  zoomState.open = false;
+  zoomState.store = null;
+  overlay.classList.remove('active');
+  overlay.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+function changeZoomPage(delta) {
+  if (!zoomState.open || !zoomState.store) return;
+  changePageFor(zoomState.store, delta);
+}
+
 // ─── State ───────────────────────────────────────────────────────
 const state = { matdax: 1, willys: 1, lidl: 1, icamaxi: 1, matvarlden: 1 };
 let activeStore = 'matdax';
@@ -963,12 +1157,14 @@ function goTo(store, n) {
     if (frame.src !== cfg.embedUrl) frame.src = cfg.embedUrl;
     spinner.style.display = 'none';
     img.classList.remove('loading');
+    img.classList.remove('zoomable');
     if (curEl) curEl.textContent = n;
     if (totEl) totEl.textContent = cfg.pages;
     if (prevBtn) prevBtn.disabled = true;
     if (nextBtn) nextBtn.disabled = true;
     if (jumpEl)  jumpEl.value = n;
     if (jumpEl)  jumpEl.max = cfg.pages;
+    refreshZoomButton(store);
     document.querySelectorAll(`#thumbs-${store} .thumb`).forEach(t => {
       t.classList.toggle('active', +t.dataset.page === n);
     });
@@ -989,12 +1185,17 @@ function goTo(store, n) {
     img.alt = flyer ? flyer.title : `Sida ${n}`;
     img.style.cursor = flyer ? 'pointer' : 'default';
     img.onclick = flyer ? () => window.open(flyer.href, '_blank', 'noopener') : null;
+    img.classList.toggle('zoomable', canZoomStore(store));
     img.classList.remove('loading');
     spinner.style.display = 'none';
+    refreshZoomButton(store);
+    syncZoomView();
   };
   loader.onerror = () => {
     spinner.style.display = 'none';
     img.classList.remove('loading');
+    img.classList.remove('zoomable');
+    refreshZoomButton(store);
   };
   loader.src = src;
 
@@ -1108,6 +1309,7 @@ async function switchStore(store) {
 // ─── Keyboard nav ────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+  if (e.key === 'Escape' && zoomState.open) closeZoom();
   if (e.key === 'ArrowLeft')  changePageFor(activeStore, -1);
   if (e.key === 'ArrowRight') changePageFor(activeStore,  1);
 });
@@ -1123,6 +1325,19 @@ document.querySelectorAll('.stage').forEach(stage => {
 });
 
 // ─── Init ────────────────────────────────────────────────────────
+document.querySelectorAll('.stage').forEach(stage => {
+  stage.addEventListener('click', e => {
+    if (e.target.closest('.nav-zone')) return;
+    if (window.innerWidth > 600) return;
+    const store = stage.id.replace('stage-', '');
+    if (!canZoomStore(store)) return;
+    const rect = stage.getBoundingClientRect();
+    const ratio = (e.clientX - rect.left) / rect.width;
+    if (ratio > 0.22 && ratio < 0.78) openZoom(store);
+  });
+});
+
+ensureZoomUi();
 buildThumbs('matdax');
 goTo('matdax', 1);
 </script>
